@@ -1,0 +1,137 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="UTF-8">
+  <title>{% trans "Uzbek Transliterator" %}</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #111827;
+      font-size: 26px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label {
+      width: 100%;
+      border: 2px dashed #d1d5db;
+      padding: 24px;
+      border-radius: 12px;
+      background: #f9fafb;
+      cursor: pointer;
+      margin-bottom: 20px;
+      color: #6b7280;
+      transition: all 0.3s ease;
+    }
+
+    label:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    #file-name {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #4b5563;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    select {
+      margin-bottom: 25px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <!-- Language Switcher -->
+  <form action="{% url 'set_language' %}" method="post">
+    {% csrf_token %}
+      <select name="language" onchange="this.form.submit()">
+        {% get_current_language as LANGUAGE_CODE %}
+        {% get_available_languages as LANGUAGES %}
+
+        {% for lang in LANGUAGES %}
+          <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %}selected{% endif %}>
+            {% if lang.0 == 'en' %}🇬🇧 English
+            {% elif lang.0 == 'uz' %}🇺🇿 O‘zbek
+            {% elif lang.0 == 'ru' %}🇷🇺 Русский
+            {% else %}{{ lang.1 }}
+            {% endif %}
+          </option>
+        {% endfor %}
+      </select>
+  </form>
+
+
+  <h1>{% trans "Upload Your File" %}</h1>
+
+  <form id="upload-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="file-input">
+      {% trans "Click to choose a file" %}
+      <input type="file" id="file-input" name="file" accept=".txt,.docx,.csv,.xlsx,.html,.json" required>
+      <div id="file-name">{% trans "No file selected" %}</div>
+    </label>
+    <button type="submit">{% trans "Convert & Download" %}</button>
+  </form>
+</div>
+
+<script>
+  const fileInput = document.getElementById('file-input');
+  const fileNameDisplay = document.getElementById('file-name');
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    fileNameDisplay.textContent = file ? file.name : '{% trans "No file selected" %}';
+  });
+</script>
+</body>
+</html>

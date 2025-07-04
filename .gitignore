@@ -1,0 +1,16 @@
+.venv
+.idea
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Django static + DB
+staticfiles/
+*.sqlite3
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
