@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-04 21:12+0500\n"
+"POT-Creation-Date: 2025-07-07 13:22+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,23 +19,32 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
 #: templates/transliteration/file_upload.html:6
 msgid "Uzbek Transliterator"
 msgstr "Узбекский транслитератор"
 
-#: templates/transliteration/file_upload.html:105
+#: templates/transliteration/file_upload.html:48
 msgid "Upload Your File"
 msgstr "Загрузите файл"
 
-#: templates/transliteration/file_upload.html:110
+#: templates/transliteration/file_upload.html:53
 msgid "Click to choose a file"
 msgstr "Нажмите, чтобы выбрать файл"
 
-#: templates/transliteration/file_upload.html:112
-#: templates/transliteration/file_upload.html:123
+#: templates/transliteration/file_upload.html:55
+#: templates/transliteration/file_upload.html:68
 msgid "No file selected"
 msgstr "Файл не выбран"
 
-#: templates/transliteration/file_upload.html:114
+#: templates/transliteration/file_upload.html:58
 msgid "Convert & Download"
 msgstr "Конвертировать и скачать"
+
+#: templates/transliteration/file_upload.html:73
+msgid "Built by"
+msgstr "Автор"
+
+#: templates/transliteration/file_upload.html:76
+msgid "This app converts Uzbek text from Cyrillic to Latin."
+msgstr "Это приложение переводит узбекский текст с кириллицы на латиницу."
