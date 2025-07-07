@@ -4,103 +4,37 @@
 <head>
   <meta charset="UTF-8">
   <title>{% trans "Uzbek Transliterator" %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f3f4f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
-    .card {
-      background: white;
-      padding: 40px 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-      width: 100%;
-      max-width: 500px;
-      text-align: center;
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
     }
-
-    h1 {
-      margin-bottom: 30px;
-      color: #111827;
-      font-size: 26px;
+    .hover-scale {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .hover-scale:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     }
-
-    label {
-      width: 100%;
-      border: 2px dashed #d1d5db;
-      padding: 24px;
-      border-radius: 12px;
-      background: #f9fafb;
-      cursor: pointer;
-      margin-bottom: 20px;
-      color: #6b7280;
-      transition: all 0.3s ease;
-    }
-
-    label:hover {
-      background: #f3f4f6;
-      border-color: #9ca3af;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    #file-name {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #4b5563;
-    }
-
-    button {
-      background: #3b82f6;
-      color: white;
-      padding: 12px 24px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #2563eb;
-    }
-
-    select {
-      margin-bottom: 25px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
+    .gradient-bg {
+      background: linear-gradient(135deg, #6b7280 0%, #3b82f6 100%);
     }
   </style>
 </head>
-<body>
-<div class="card">
-  <!-- Language Switcher -->
-  <form action="{% url 'set_language' %}" method="post">
-    {% csrf_token %}
-      <select name="language" onchange="this.form.submit()">
+<body class="min-h-screen flex items-center justify-center gradient-bg p-4">
+  <div class="card bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg animate-fade-in">
+    <!-- Language Switcher -->
+    <form action="{% url 'set_language' %}" method="post" class="mb-6">
+      {% csrf_token %}
+      <select name="language" onchange="this.form.submit()" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-800 transition-colors duration-300">
         {% get_current_language as LANGUAGE_CODE %}
         {% get_available_languages as LANGUAGES %}
-
         {% for lang in LANGUAGES %}
-          <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %}selected{% endif %}>
+          <option value="{{ lang.0 }}" {% if lang.0 == LANGUAGE_CODE %}selected{% endif %} class="text-gray-800">
             {% if lang.0 == 'en' %}🇬🇧 English
             {% elif lang.0 == 'uz' %}🇺🇿 O‘zbek
             {% elif lang.0 == 'ru' %}🇷🇺 Русский
@@ -109,29 +43,30 @@
           </option>
         {% endfor %}
       </select>
-  </form>
+    </form>
 
+    <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">{% trans "Upload Your File" %}</h1>
 
-  <h1>{% trans "Upload Your File" %}</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      <label for="file-input" class="block border-2 border-dashed border-gray-300 rounded-xl p-8 bg-gray-50 hover:bg-gray-100 hover:border-blue-500 transition-all duration-300 cursor-pointer text-center hover-scale">
+        <span class="text-gray-600 font-medium">{% trans "Click to choose a file" %}</span>
+        <input type="file" id="file-input" name="file" accept=".txt,.docx,.csv,.xlsx,.html,.json" required class="hidden">
+        <div id="file-name" class="mt-2 text-sm text-gray-500">{% trans "No file selected" %}</div>
+      </label>
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all duration-300 font-semibold hover-scale">
+        {% trans "Convert & Download" %}
+      </button>
+    </form>
+  </div>
 
-  <form id="upload-form" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="file-input">
-      {% trans "Click to choose a file" %}
-      <input type="file" id="file-input" name="file" accept=".txt,.docx,.csv,.xlsx,.html,.json" required>
-      <div id="file-name">{% trans "No file selected" %}</div>
-    </label>
-    <button type="submit">{% trans "Convert & Download" %}</button>
-  </form>
-</div>
-
-<script>
-  const fileInput = document.getElementById('file-input');
-  const fileNameDisplay = document.getElementById('file-name');
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    fileNameDisplay.textContent = file ? file.name : '{% trans "No file selected" %}';
-  });
-</script>
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('file-name');
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      fileNameDisplay.textContent = file ? file.name : '{% trans "No file selected" %}';
+    });
+  </script>
 </body>
 </html>
