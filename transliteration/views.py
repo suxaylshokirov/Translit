@@ -5,6 +5,7 @@ import json
 import pandas as pd
 from bs4 import BeautifulSoup
 from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from django.http import HttpResponse
 from django.shortcuts import render
 from .forms import UploadFileForm
@@ -21,60 +22,61 @@ def upload_file_view(request):
             filename = f.name
             file_type = os.path.splitext(filename)[1].lower()
 
-            # extract content
-            raw_text = ""
-
-            if file_type == ".txt":
-                raw_text = f.read().decode('utf-8')
-            elif file_type == ".docx":
-                doc = Document(f)
-                raw_text = '\n'.join([p.text for p in doc.paragraphs])
-            elif file_type in [".csv", ".xlsx"]:
-                df = pd.read_csv(f) if file_type == ".csv" else pd.read_excel(f)
-                raw_text = df.to_csv(index=False)
-            elif file_type == ".html":
-                soup = BeautifulSoup(f.read(), 'html_parser')
-                raw_text = soup.get_text()
-            elif file_type == ".json":
-                data = json.load(f)
-                raw_text = json.dumps(data, ensure_ascii=False, indent=2)
-            else:
-                return HttpResponse("Unsupported file type!", status=400)
-
-            # transliterate
-            converted = cyrillic_to_latin(raw_text)
-
-            # return same type of file
             buffer = io.BytesIO()
             response = HttpResponse(content_type="application/octet-stream")
             response["Content-Disposition"] = f"attachment; filename=File{file_type}"
 
-            if file_type == ".txt" or file_type == ".html":
-                response.write(converted)
-            elif file_type == ".docx":
-                doc = Document()
-                for line in converted.splitlines():
-                    doc.add_paragraph(line)
-                doc.save(buffer)
-                buffer.seek(0)
-                response = HttpResponse(buffer.read(), content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                response["Content-Disposition"] = "attachment; filename=File.docx"
-            elif file_type in [".csv", ".xlsx"]:
-                df = pd.read_csv(io.StringIO(converted)) if file_type == ".csv" else pd.DataFrame(converted)
-                output = io.StringIO() if file_type == ".csv" else io.BytesIO()
-                if file_type == ".csv":
-                    df.to_csv(output, index=False)
-                    response.write(output.getvalue())
-                else:
-                    df.to_excel(output, index=False)
-                    response = HttpResponse(output.getvalue(),
-                                            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                    response["Content-Disposition"] = "attachment; filename=File.xlsx"
-            elif file_type == ".json":
+            if file_type == ".txt":
+                raw_text = f.read().decode('utf-8')
+                converted = cyrillic_to_latin(raw_text)
                 response.write(converted)
 
+            elif file_type == ".docx":
+                old_doc = Document(f)
+                new_doc = Document()
+
+                for para in old_doc.paragraphs:
+                    new_para = new_doc.add_paragraph()
+                    new_para.alignment = para.alignment
+
+                    for run in para.runs:
+                        new_run = new_para.add_run(cyrillic_to_latin(run.text))
+                        new_run.bold = run.bold
+                        new_run.italic = run.italic
+                        new_run.underline = run.underline
+                        new_run.font.name = run.font.name
+
+                new_doc.save(buffer)
+                buffer.seek(0)
+                response = HttpResponse(
+                    buffer.read(),
+                    content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+                response["Content-Disposition"] = "attachment; filename=File.docx"
+
+            elif file_type == ".csv":
+                df = pd.read_csv(f)
+                raw_text = df.to_csv(index=False)
+                converted = cyrillic_to_latin(raw_text)
+                output = io.StringIO()
+                pd.read_csv(io.StringIO(converted)).to_csv(output, index=False)
+                response.write(output.getvalue())
+
+            elif file_type == ".html":
+                soup = BeautifulSoup(f.read(), 'html.parser')
+                for tag in soup.find_all(text=True):
+                    tag.replace_with(cyrillic_to_latin(tag))
+                response.write(str(soup))
+
+            elif file_type == ".json":
+                data = json.load(f)
+                raw_text = json.dumps(data, ensure_ascii=False, indent=2)
+                converted = cyrillic_to_latin(raw_text)
+                response.write(converted)
+
+            else:
+                return HttpResponse("Unsupported file type!", status=400)
+
             return response
-        else:
-            form = UploadFileForm()
 
     return render(request, "transliteration/file_upload.html", {"form": form})
