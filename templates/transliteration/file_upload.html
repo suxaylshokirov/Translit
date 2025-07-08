@@ -3,6 +3,7 @@
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% trans "Uzbek Transliterator" %}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -25,8 +26,9 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center gradient-bg p-4">
-  <div class="card bg-white rounded-3xl shadow-2xl p-8 w-full max-w-lg animate-fade-in">
+<body class="min-h-screen flex flex-col items-center justify-center gradient-bg px-4 py-6 sm:py-12">
+  <div class="card bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-lg animate-fade-in">
+
     <!-- Language Switcher -->
     <form action="{% url 'set_language' %}" method="post" class="mb-6">
       {% csrf_token %}
@@ -45,21 +47,22 @@
       </select>
     </form>
 
-    <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">{% trans "Upload Your File" %}</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-center">{% trans "Upload Your File" %}</h1>
 
     <form id="upload-form" method="post" enctype="multipart/form-data" class="space-y-6">
       {% csrf_token %}
-      <label for="file-input" class="block border-2 border-dashed border-gray-300 rounded-xl p-8 bg-gray-50 hover:bg-gray-100 hover:border-blue-500 transition-all duration-300 cursor-pointer text-center hover-scale">
-        <span class="text-gray-600 font-medium">{% trans "Click to choose a file" %}</span>
+      <label for="file-input" class="block border-2 border-dashed border-gray-300 rounded-xl p-6 sm:p-8 bg-gray-50 hover:bg-gray-100 hover:border-blue-500 transition-all duration-300 cursor-pointer text-center hover-scale">
+        <span class="text-gray-600 font-medium block">{% trans "Click to choose a file" %}</span>
         <input type="file" id="file-input" name="file" accept=".txt,.docx,.csv,.xlsx,.html,.json" required class="hidden">
-        <div id="file-name" class="mt-2 text-sm text-gray-500">{% trans "No file selected" %}</div>
+        <div id="file-name" class="mt-2 text-sm text-gray-500 truncate max-w-full">{% trans "No file selected" %}</div>
       </label>
-      <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all duration-300 font-semibold hover-scale">
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-all duration-300 font-semibold hover-scale">
         {% trans "Convert & Download" %}
       </button>
     </form>
   </div>
-  <footer class="mt-10 text-center text-white font-semibold text-lg">
+
+  <footer class="mt-8 sm:mt-10 text-center text-white text-sm sm:text-base font-medium leading-snug">
     <p>
       {% trans "Built by" %} <a href="https://github.com/suxaylshokirov" target="_blank" class="text-yellow-300 hover:underline">Suxayl Shokirov</a>
     </p>
